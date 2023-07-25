@@ -2,8 +2,6 @@ import logging
 import pprint
 import math
 
-from roms_analyzer.snes import hirom, lorom, exhirom
-
 logging.basicConfig(level=logging.DEBUG)
 
 _LOGGER = logging.getLogger(__name__)
