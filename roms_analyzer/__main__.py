@@ -10,6 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 HEADER_LoROM_ADDR = 0x007FC0
 HEADER_HiROM_ADDR = 0x00FFC0
+HEADER_ExLoROM_ADDR = 0x407FC0
 HEADER_ExHiROM_ADDR = 0x40FFC0
 
 FILE_HEADER_SIZE = 512
@@ -22,7 +23,7 @@ def get_app_param() -> argparse.Namespace:
 
 
 def get_files(path: str) -> list[str]:
-    path =  os.path.abspath(path)
+    path = os.path.abspath(path)
     res = glob.glob(path)
     return res
 
@@ -96,6 +97,7 @@ if __name__ == '__main__':
 
         header_LoROM = get_header(data, start + HEADER_LoROM_ADDR)
         header_HiROM = get_header(data, start + HEADER_HiROM_ADDR)
+        header_ExLoROM = get_header(data, start + HEADER_ExLoROM_ADDR)
         header_ExHiROM = get_header(data, start + HEADER_ExHiROM_ADDR)
 
         _LOGGER.info('LoROM: ' + pprint.pformat(header_LoROM['cartridge_title']))
