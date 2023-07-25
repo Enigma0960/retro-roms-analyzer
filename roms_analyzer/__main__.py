@@ -1,22 +1,30 @@
+import os
+import glob
 import logging
 import pprint
-import math
+import argparse
 
 logging.basicConfig(level=logging.DEBUG)
 
 _LOGGER = logging.getLogger(__name__)
-
-_TEST_FILES = [
-    '../data/Legend of Zelda, The - A Link to the Past.smc',
-    '../data/Bahamut Lagoon.sfc',
-    '../data/Tales of Phantasia.smc',
-]
 
 HEADER_LoROM_ADDR = 0x007FC0
 HEADER_HiROM_ADDR = 0x00FFC0
 HEADER_ExHiROM_ADDR = 0x40FFC0
 
 FILE_HEADER_SIZE = 512
+
+
+def get_app_param() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(prog='retro roms analyzer')
+    parser.add_argument('input')
+    return parser.parse_args()
+
+
+def get_files(path: str) -> list[str]:
+    path =  os.path.abspath(path)
+    res = glob.glob(path)
+    return res
 
 
 def check_file_header(data: bytes) -> bool:
@@ -69,7 +77,10 @@ def get_header(data: bytes, start: int) -> dict:
 
 
 if __name__ == '__main__':
-    for file_name in _TEST_FILES:
+    args = get_app_param()
+    file_list = get_files(args.input)
+
+    for file_name in file_list:
         _LOGGER.info(f'File:{file_name}')
 
         with open(file_name, mode='rb') as file:
