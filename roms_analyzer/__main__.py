@@ -7,6 +7,8 @@ import argparse
 
 from typing import Union, Optional
 
+from roms_analyzer.platforms.snes import get_header
+
 logging.basicConfig(level=logging.DEBUG)
 
 _LOGGER = logging.getLogger(__name__)
@@ -46,7 +48,7 @@ def get_files(path: str, ext: Union[str, list[str]]) -> list[str]:
     if type(ext) is str:
         ext = [ext]
     for file_type in ext:
-        file_path = os.path.join(path, f"*.{file_type}")
+        file_path = os.path.join(path, "**", f"*.{file_type}")
         res += glob.glob(file_path, recursive=True)
     return res
 
@@ -67,29 +69,29 @@ def extract_bytes(data: bytes, size) -> tuple[bytes, bytes]:
     return data, res
 
 
-def get_header(data: bytes, start: int) -> Optional[SnesHeader]:
-    header: Optional[SnesHeader] = SnesHeader()
-
-    hdata = get_bytes(data=data, offset=start, size=53)
-
-    hdata, header.cartridge_title = extract_bytes(hdata, 21)
-    hdata, header.rom_speed = extract_bytes(hdata, 1)
-    hdata, header.chipset = extract_bytes(hdata, 1)
-    hdata, header.rom_size = extract_bytes(hdata, 1)
-    hdata, header.ram_size = extract_bytes(hdata, 1)
-    hdata, header.country = extract_bytes(hdata, 1)
-    hdata, header.developer_id = extract_bytes(hdata, 1)
-    hdata, header.rom_version = extract_bytes(hdata, 1)
-    hdata, header.checksum = extract_bytes(hdata, 2)
-    hdata, header.checksum_compliment = extract_bytes(hdata, 2)
-    _, header.interrupt_vectors = extract_bytes(hdata, 32)
-
-    return header
+# def get_header(data: bytes, start: int) -> Optional[SnesHeader]:
+#     header: Optional[SnesHeader] = SnesHeader()
+#
+#     hdata = get_bytes(data=data, offset=start, size=53)
+#
+#     hdata, header.cartridge_title = extract_bytes(hdata, 21)
+#     hdata, header.rom_speed = extract_bytes(hdata, 1)
+#     hdata, header.chipset = extract_bytes(hdata, 1)
+#     hdata, header.rom_size = extract_bytes(hdata, 1)
+#     hdata, header.ram_size = extract_bytes(hdata, 1)
+#     hdata, header.country = extract_bytes(hdata, 1)
+#     hdata, header.developer_id = extract_bytes(hdata, 1)
+#     hdata, header.rom_version = extract_bytes(hdata, 1)
+#     hdata, header.checksum = extract_bytes(hdata, 2)
+#     hdata, header.checksum_compliment = extract_bytes(hdata, 2)
+#     _, header.interrupt_vectors = extract_bytes(hdata, 32)
+#
+#     return header
 
 
 if __name__ == '__main__':
     args = get_app_param()
-    file_list = get_files(args.input, "smc")
+    file_list = get_files(args.input, ["smc", "sfc"])
 
     for file_name in file_list:
         _LOGGER.info(f'File:{file_name}')
@@ -105,17 +107,19 @@ if __name__ == '__main__':
             start = 0
         _LOGGER.info(f'ROM size: {len(data) - start}')
 
-        header_LoROM = get_header(data, start + HEADER_LoROM_ADDR)
-        header_HiROM = get_header(data, start + HEADER_HiROM_ADDR)
-        header_ExLoROM = get_header(data, start + HEADER_ExLoROM_ADDR)
-        header_ExHiROM = get_header(data, start + HEADER_ExHiROM_ADDR)
+        _LOGGER.info(get_header(data[start + HEADER_LoROM_ADDR:]))
 
-        _LOGGER.info('LoROM: ' + pprint.pformat(header_LoROM.cartridge_title))
-        _LOGGER.info('HiROM: ' + pprint.pformat(header_HiROM.cartridge_title))
-        _LOGGER.info('ExHiROM: ' + pprint.pformat(header_ExHiROM.cartridge_title))
-
-        _LOGGER.info('LoROM checksum: ' + pprint.pformat(header_LoROM.checksum))
-        _LOGGER.info('HiROM checksum: ' + pprint.pformat(header_HiROM.checksum))
-        _LOGGER.info('ExHiROM checksum: ' + pprint.pformat(header_ExHiROM.checksum))
-
-        _LOGGER.info('\n\n')
+        # header_LoROM = get_header(data, start + HEADER_LoROM_ADDR)
+        # header_HiROM = get_header(data, start + HEADER_HiROM_ADDR)
+        # header_ExLoROM = get_header(data, start + HEADER_ExLoROM_ADDR)
+        # header_ExHiROM = get_header(data, start + HEADER_ExHiROM_ADDR)
+        #
+        # _LOGGER.info('LoROM: ' + pprint.pformat(header_LoROM.cartridge_title))
+        # _LOGGER.info('HiROM: ' + pprint.pformat(header_HiROM.cartridge_title))
+        # _LOGGER.info('ExHiROM: ' + pprint.pformat(header_ExHiROM.cartridge_title))
+        #
+        # _LOGGER.info('LoROM checksum: ' + pprint.pformat(header_LoROM.checksum))
+        # _LOGGER.info('HiROM checksum: ' + pprint.pformat(header_HiROM.checksum))
+        # _LOGGER.info('ExHiROM checksum: ' + pprint.pformat(header_ExHiROM.checksum))
+        #
+        # _LOGGER.info('\n\n')
